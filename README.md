@@ -1,19 +1,32 @@
 Floating Search View [![Android Arsenal](https://img.shields.io/badge/Android%20Arsenal-Floating%20Search%20View-green.svg?style=true)](https://android-arsenal.com/details/1/2842)
 =============
 
-An implementation of a floating search box with search suggestions.
+An implementation of a floating search box with search suggestions, also called persistent search bar.
 
-![Alt text](/images/vf353.gif)
+![Alt text](/images/150696.gif)
+![Alt text](/images/1506tq.gif)
+![Alt text](/images/1508kn.gif)
+
+
+Note
+-----
+
+This project is not being actively maintained. Have a look [here](https://github.com/arimorty/floatingsearchview/wiki) for information
+that might help you make changes to your own copy of the code base.
+
+
+...
+
 
 Usage
 -----
 
 1. In your dependencies, add
     ```
-         compile 'com.github.arimorty:floatingsearchview:1.1.2'
+         compile 'com.github.arimorty:floatingsearchview:2.1.1'
     ```
 2. Add a FloatingSearchView to your view hierarchy, and make sure that it takes
-   up the full width and height of the screen   
+   up the full width and height of the screen
 3. Listen to query changes and provide suggestion items that implement SearchSuggestion
 
 **Example:**
@@ -27,11 +40,11 @@ Usage
                 app:floatingSearch_searchBarMarginTop="@dimen/search_view_inset"
                 app:floatingSearch_searchBarMarginRight="@dimen/search_view_inset"
                 app:floatingSearch_searchHint="Search..."
-                app:floatingSearch_showSearchHintWhenNotFocused="true"
+                app:floatingSearch_suggestionsListAnimDuration="250"
                 app:floatingSearch_showSearchKey="false"
-                app:floatingSearch_dismissOnOutsideTouch="true"
                 app:floatingSearch_leftActionMode="showHamburger"
-                app:floatingSearch_menu="@menu/menu_main"/>
+                app:floatingSearch_menu="@menu/menu_main"
+                app:floatingSearch_close_search_on_keyboard_dismiss="true"/>
 ```
 
 ```
@@ -81,6 +94,11 @@ Listen to *hamburger* button clicks:
         new FloatingSearchView.OnLeftMenuClickListener() { ...} );          
 ```
 
+To quickly connect your **NavigationDrawer** to the *hamburger* button:
+```
+   mSearchView.attachNavigationDrawerToMenuButton(mDrawerLayout);
+```
+
 Listen to home (back arrow) button clicks:
 ```
   mSearchView.setOnHomeActionClickListener(
@@ -90,6 +108,8 @@ Listen to home (back arrow) button clicks:
 <br/>
 
 **Configure menu items:**
+
+![Alt text](/images/150sg9.gif)
 
 Add a menu resource
 ```xml
@@ -137,10 +157,11 @@ First, implement [SearchSuggestion](https://github.com/arimorty/floatingsearchvi
 
 Set a callback for when a given suggestion is bound to the suggestion list.
 
+For the history icons to show, you would need to implement this. Refer to the sample app for an [example implementation](https://github.com/arimorty/floatingsearchview/blob/master/sample/src/main/java/com/arlib/floatingsearchviewdemo/fragment/ScrollingSearchExampleFragment.java#L222).
 ``` 
    mSearchView.setOnBindSuggestionCallback(new SearchSuggestionsAdapter.OnBindSuggestionCallback() {
             @Override
-            public void onBindSuggestion(IconImageView leftIcon, BodyTextView bodyText, SearchSuggestion item, int itemPosition) {
+            public void onBindSuggestion(View suggestionView, ImageView leftIcon, TextView textView, SearchSuggestion item, int itemPosition) {
 
                        //here you can set some attributes for the suggestion's left icon and text. For example,
                        //you can choose your favorite image-loading library for setting the left icon's image. 
@@ -153,15 +174,16 @@ Set a callback for when a given suggestion is bound to the suggestion list.
 
 **Styling:**
 
-<img src="https://github.com/arimorty/floatingsearchview/blob/develop/images/device-2015-12-08-123103.png"/>
-
+<img src="https://github.com/arimorty/floatingsearchview/blob/develop/images/style_light.png" width="350"/>
+<img src="https://github.com/arimorty/floatingsearchview/blob/develop/images/style_dark.png" width="350"/>
 
 Available styling:
 
 ```xml
    <style name="SearchView">
            <item name="floatingSearch_backgroundColor"></item>
-           <item name="floatingSearch_viewTextColor"></item>
+           <item name="floatingSearch_viewSearchInputTextColor"></item>
+           <item name="floatingSearch_viewSuggestionItemTextColor"></item>
            <item name="floatingSearch_hintTextColor"></item>
            <item name="floatingSearch_dividerColor"></item>
            <item name="floatingSearch_clearBtnColor"></item>
@@ -169,20 +191,28 @@ Available styling:
            <item name="floatingSearch_menuItemIconColor"></item>
            <item name="floatingSearch_suggestionRightIconColor"></item>
            <item name="floatingSearch_actionMenuOverflowColor"></item>
-    </style>
+   </style>
+```
+### RxBinding Extension
+The RxBinding library allows you to listen for query changes using RxJava Obervables. 
+
+```java
+Observable<CharSequence> queryObservable = RxFloatingSearchView.queryChanges(view);
+queryObservable.doOnNext { query -> Toast.makeText(this, "Query is %s".format(query), Toast.LENGTH_LONG).show() }.subscribe();
 ```
 
+### The Kotlin Extension
+The Kotlin extension adds an extension function to the view for more goodness.
 
-Contributing
-============
+```kotlin
+view.queryChanges(5).doOnNext { query -> Toast.makeText(this, "Query is %s".format(query), Toast.LENGTH_LONG).show() }.subscribe()
+```
 
-At this point we want to focus on stability and efficiency before adding new features. All suggestions
-or bug reports are welcome.
 
 License
 =======
 
-    Copyright (C) 2015 Arlib
+    Copyright (C) 2015 Ari C.
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.
